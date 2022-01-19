@@ -43,3 +43,20 @@ $ ./countdown -h 1 -m 39 -s 18 # start a countdown timer for 1 hour, 39 minutes 
 ```bash
 $ ./countdown -c # enable colorful output. To be used in conjuction with any flag
 ```
+
+# Wrapper shell script
+```bash
+#!/bin/sh
+
+clear
+
+# hide cursor
+if type setterm >/dev/null 2>&1; then
+    setterm --cursor off
+fi
+
+trap 'reset' 2
+
+countdown $@
+reset
+```
