@@ -3,7 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type flags struct {
@@ -31,6 +34,25 @@ func parseArgs() flags {
 	}
 }
 
+var colors = []color.Attribute{
+	color.FgRed,
+	color.FgGreen,
+	color.FgYellow,
+	color.FgBlue,
+	color.FgMagenta,
+	color.FgCyan,
+	color.FgHiRed,
+	color.FgHiGreen,
+	color.FgHiYellow,
+	color.FgHiBlue,
+	color.FgHiMagenta,
+	color.FgHiCyan,
+}
+
+func getColor() color.Attribute {
+	return colors[rand.Intn(len(colors))]
+}
+
 func watch(colorful bool) {
 	start := time.Now()
 	for {
@@ -39,12 +61,19 @@ func watch(colorful bool) {
 		minutes := int(delta.Minutes())
 		hours := int(delta.Hours())
 
-		fmt.Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
+		if colorful {
+			color.New(getColor()).Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
+		} else {
+			fmt.Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
+		}
+
 		time.Sleep(time.Second)
 	}
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	flags := parseArgs()
 
 	if flags.seconds == 0 && flags.minutes == 0 && flags.hours == 0 {
