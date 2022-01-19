@@ -1,6 +1,10 @@
 package main
 
-import "flag"
+import (
+	"flag"
+	"fmt"
+	"time"
+)
 
 type flags struct {
 	seconds   uint
@@ -24,5 +28,26 @@ func parseArgs() flags {
 		hours:     *hours,
 		precision: *precision,
 		colorful:  *colorful,
+	}
+}
+
+func watch(colorful bool) {
+	start := time.Now()
+	for {
+		delta := time.Now().Sub(start)
+		seconds := int(delta.Seconds())
+		minutes := int(delta.Minutes())
+		hours := int(delta.Hours())
+
+		fmt.Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
+		time.Sleep(time.Second)
+	}
+}
+
+func main() {
+	flags := parseArgs()
+
+	if flags.seconds == 0 && flags.minutes == 0 && flags.hours == 0 {
+		watch(flags.colorful)
 	}
 }
