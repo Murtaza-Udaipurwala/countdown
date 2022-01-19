@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -15,6 +17,21 @@ type flags struct {
 	hours     uint
 	precision float64
 	colorful  bool
+}
+
+var colors = []color.Attribute{
+	color.FgRed,
+	color.FgGreen,
+	color.FgYellow,
+	color.FgBlue,
+	color.FgMagenta,
+	color.FgCyan,
+	color.FgHiRed,
+	color.FgHiGreen,
+	color.FgHiYellow,
+	color.FgHiBlue,
+	color.FgHiMagenta,
+	color.FgHiCyan,
 }
 
 func parseArgs() flags {
@@ -32,21 +49,6 @@ func parseArgs() flags {
 		precision: *precision,
 		colorful:  *colorful,
 	}
-}
-
-var colors = []color.Attribute{
-	color.FgRed,
-	color.FgGreen,
-	color.FgYellow,
-	color.FgBlue,
-	color.FgMagenta,
-	color.FgCyan,
-	color.FgHiRed,
-	color.FgHiGreen,
-	color.FgHiYellow,
-	color.FgHiBlue,
-	color.FgHiMagenta,
-	color.FgHiCyan,
 }
 
 func getColor() color.Attribute {
@@ -71,6 +73,41 @@ func watch(colorful bool) {
 	}
 }
 
+func coutdown(duration uint, sleep float64, colorful bool) {
+	timeout := time.Duration(duration * 1e9)
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	pFactor := (sleep / float64(duration)) * 100
+	var i float64
+
+Loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break Loop
+		default:
+			i += pFactor
+			if i > 100 {
+				i = 100
+			}
+
+			bar := strings.Repeat("=", int(i))
+
+			if colorful {
+				color.New(getColor()).Printf("\r[%-100s] %.2f%%", bar, i)
+			} else {
+				fmt.Printf("\r[%-100s] %.2f%%", bar, i)
+			}
+
+			time.Sleep(time.Duration(sleep * 1e9))
+		}
+	}
+
+	fmt.Println()
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -78,5 +115,8 @@ func main() {
 
 	if flags.seconds == 0 && flags.minutes == 0 && flags.hours == 0 {
 		watch(flags.colorful)
+	} else {
+		duration := flags.seconds + flags.minutes*60 + flags.hours*60*60
+		coutdown(duration, flags.precision, flags.colorful)
 	}
 }
