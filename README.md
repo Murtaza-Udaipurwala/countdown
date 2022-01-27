@@ -11,7 +11,7 @@
 ```bash
 $ git clone https://github.com/Murtaza-Udaipurwala/countdown
 $ cd countdown
-$ go build
+$ make PREFIX=~/.local install
 ```
 
 # Usage
@@ -44,19 +44,25 @@ $ ./countdown -h 1 -m 39 -s 18 # start a countdown timer for 1 hour, 39 minutes 
 $ ./countdown -c # enable colorful output. To be used in conjuction with any flag
 ```
 
-# Wrapper shell script
+# Wrapper script
 ```bash
 #!/bin/sh
 
+hidecursor() {
+    if type setterm >/dev/null 2>&1; then
+        setterm --cursor off
+    fi
+}
+
+showcursor() {
+    if type setterm >/dev/null 2>&1; then
+        setterm --cursor on
+    fi
+}
+
 clear
-
-# hide cursor
-if type setterm >/dev/null 2>&1; then
-    setterm --cursor off
-fi
-
-trap 'reset' 2
-
-countdown $@
-reset
+hidecursor
+trap 'showcursor' 2
+countdown "$@"
+showcursor
 ```
