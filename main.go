@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-
-	"github.com/fatih/color"
 )
 
 type flags struct {
@@ -19,19 +17,20 @@ type flags struct {
 	colorful  bool
 }
 
-var colors = []color.Attribute{
-	color.FgRed,
-	color.FgGreen,
-	color.FgYellow,
-	color.FgBlue,
-	color.FgMagenta,
-	color.FgCyan,
-	color.FgHiRed,
-	color.FgHiGreen,
-	color.FgHiYellow,
-	color.FgHiBlue,
-	color.FgHiMagenta,
-	color.FgHiCyan,
+var colors = []string{
+	"\033[31m",
+	"\033[32m",
+	"\033[33m",
+	"\033[34m",
+	"\033[35m",
+	"\033[36m",
+	"\033[1;31m",
+	"\033[1;32m",
+	"\033[1;33m",
+	"\033[1;34m",
+	"\033[1;35m",
+	"\033[1;36m",
+	"\033[0m",
 }
 
 func parseArgs() flags {
@@ -51,7 +50,7 @@ func parseArgs() flags {
 	}
 }
 
-func getColor() color.Attribute {
+func getColor() string {
 	return colors[rand.Intn(len(colors))]
 }
 
@@ -64,7 +63,7 @@ func watch(colorful bool) {
 		hours := int(delta.Hours())
 
 		if colorful {
-			color.New(getColor()).Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
+			fmt.Printf("\r%s%02d:%02d:%02d", getColor(), hours, minutes, seconds)
 		} else {
 			fmt.Printf("\r%02d:%02d:%02d", hours, minutes, seconds)
 		}
@@ -96,7 +95,7 @@ Loop:
 			bar := strings.Repeat("=", int(i))
 
 			if colorful {
-				color.New(getColor()).Printf("\r[%-100s] %.2f%%", bar, i)
+				fmt.Printf("\r%s[%-100s] %.2f%%", getColor(), bar, i)
 			} else {
 				fmt.Printf("\r[%-100s] %.2f%%", bar, i)
 			}
